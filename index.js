@@ -1,6 +1,7 @@
 const EventEmitter = require('events');
 /**
  * ESCPOS
+ * @docs https://reference.epson-biz.com/modules/ref_escpos
  * @docs http://content.epson.de/fileadmin/content/files/RSD/downloads/escpos.pdf
  */
 class ESCPOS extends EventEmitter {
@@ -33,21 +34,36 @@ class ESCPOS extends EventEmitter {
   mode(n){
     return this.exec(ESCPOS.ESC, '!', n);
   }
+  reset(){
+    return this.exec(ESCPOS.ESC, '@');
+  }
+  /**
+   * Select an international character set
+   * @docs https://reference.epson-biz.com/modules/ref_escpos/index.php?content_id=29
+   * @param {*} n 
+   */
+  language(n){
+    return this.exec(ESCPOS.ESC, 'R', n);
+  }
+  /**
+   * Selects the character font and styles (emphasize, 
+   * double-height, double-width, and underline) together.
+   */
+  style(style){
+    return this.mode(style);
+  }
+  /**
+   * Turn emphasized mode on/off
+   */
+  blod(n){
+    return this.exec(ESCPOS.ESC, 'E', n);
+  }
   /**
    * Turn underline mode on/off
    * @param {*} n 
    */
   underline(n){
     return this.exec(ESCPOS.ESC, '-', n);
-  }
-  reset(){
-    return this.exec(ESCPOS.ESC, '@');
-  }
-  /**
-   * Turn emphasized mode on/off
-   */
-  emphasized(n){
-    return this.exec(ESCPOS.ESC, 'E', n);
   }
   /**
    * Turn double-strike mode on/off 
@@ -56,10 +72,22 @@ class ESCPOS extends EventEmitter {
     return this.exec(ESCPOS.ESC, 'G', n);
   }
   /**
+   * Select line spacing
+   * @docs https://reference.epson-biz.com/modules/ref_escpos/index.php?content_id=19
+   * @param {*} n 
+   */
+  lineSpace(n){
+    if(n) return this.exec(ESCPOS.ESC, '3', n);
+    return this.exec(ESCPOS.ESC, '2');
+  }
+  /**
    * Select character font
    */
   font(n){
     return this.exec(ESCPOS.ESC, 'M', n);
+  }
+  size(n){
+    return this.exec(ESCPOS.ESC, '', n);
   }
   /**
    * Select justification
@@ -95,6 +123,9 @@ class ESCPOS extends EventEmitter {
     if(typeof content !== 'string')
       content = content.toString(encoding)
     return this.println(content);
+  }
+  barcode(){
+    return this.exec(ESCPOS.GS, 'k');
   }
 }
 
